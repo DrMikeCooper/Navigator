@@ -10,27 +10,27 @@ public class Navigator : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        // add 20 random big cuboids into the level.
+        // The prefab has been tagged as StaticBatchingUtility Navigation in The Navigation editor
         for (int i = 0; i < 20; i++)
         {
             GameObject go = Instantiate(prefab, new Vector3(Random.Range(-25, 25), Random.Range(0,1), Random.Range(-25, 25)), Quaternion.AngleAxis(Random.Range(-180,180), Vector3.up));
             go.transform.parent = transform;
         }
 
-        // craete a navmesh
-        NavMeshBuildSettings settings = new NavMeshBuildSettings();
-        settings.agentRadius = 0.5f;
-        settings.agentHeight = 2.0f;
-        settings.agentSlope = 45;
-        settings.tileSize = 3;
-        settings.minRegionArea = 2;
+        // Use the standard settings from the editor (I think)
+        NavMeshBuildSettings settings = NavMesh.GetSettingsByID(0);
 
+        // gather all the physics colliders which are children of this transform (or you can do this by volume)
         List<NavMeshBuildSource> results = new List<NavMeshBuildSource>();
         NavMeshBuilder.CollectSources(transform, 255, NavMeshCollectGeometry.PhysicsColliders, 0,  new List<NavMeshBuildMarkup>(), results);
 
-        Bounds bounds = new Bounds(Vector3.zero, 30 * Vector3.one);
+        // make a 100m box around the origin
+        Bounds bounds = new Bounds(Vector3.zero, 100 * Vector3.one);
 
+        // Build the actual navmesh
         NavMeshData data = NavMeshBuilder.BuildNavMeshData(settings, results, bounds, Vector3.zero, Quaternion.identity);
-
+        NavMesh.AddNavMeshData(data);
         success = NavMeshBuilder.UpdateNavMeshData(data, settings, results, bounds);
 	}
 	
